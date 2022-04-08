@@ -1,0 +1,23 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "project-lvl3",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mentavr/frontend-project-lvl3.git"
+  },
+  "author": "Artem Bykov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mentavr/frontend-project-lvl3/issues"
+  },
+  "homepage": "https://github.com/Mentavr/frontend-project-lvl3#readme",
+  "devDependencies": {
+    "eslint": "^8.12.0"
+  }
+}
