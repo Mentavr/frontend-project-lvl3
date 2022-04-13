@@ -1,15 +1,16 @@
-# 🚀 Welcome to your new awesome project!
+### Hexlet tests and linter:
+[![hexlet-check](https://github.com/Mentavr/frontend-project-lvl3/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Mentavr/frontend-project-lvl3/actions/workflows/hexlet-check.yml)
 
-This project has been created using **webpack-cli**, you can now run
+[![linter](https://github.com/Mentavr/frontend-project-lvl3/actions/workflows/test.yml/badge.svg)](https://github.com/Mentavr/frontend-project-lvl3/actions/workflows/test.yml)
 
-```
-npm run build
-```
+### Codeclimate
+[![Maintainability](https://api.codeclimate.com/v1/badges/bbb9bccc11ec5db9012f/maintainability)](https://codeclimate.com/github/Mentavr/frontend-project-lvl3/maintainability)
+## How to install?
+1. Clone this repositori.
+2. Instal dependencies(Makefile: "make install")
+3. 
 
-or
+### Vercel deployment Status
+[Vercel deployment Status]: https://frontend-project-lvl3-mentavr.vercel.app/
 
-```
-yarn build
-```
 
-to bundle your application
