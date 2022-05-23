@@ -16,8 +16,10 @@
                     <form class="rss-form text-body" action="get">
                         <div class="row">
                             <div class="col">
-                                <input class="form-control w-100 h-100" id="url-input" type="name" label="url" required autofocus placeholder="Ссылка RSS">
-                                <label for="url-input">Ссылка RSS</label>
+                                <div class="form-floating">
+                                    <input class="form-control w-100" id="url-input" type="text" label="url" name="url" required autofocus placeholder="Text">
+                                    <label for="url-input">Ссылка RSS</label>
+                                </div>
                             </div>
                             <div class="col-auto">
                                 <button type="sumbit" class="h-100 btn btn-lg btn-primary px-sm-5" value="add">Добавить</button>
@@ -25,6 +27,7 @@
                         </div>
                     </form>
                     <p class="mt-2 mb-0 text-muted">Пример: https://ru.hexlet.io/lessons.rss</p>
+                    <p class="feedback m-0 position-absolute small text-danger"></p>
                 </div>
             </div>
         </section>

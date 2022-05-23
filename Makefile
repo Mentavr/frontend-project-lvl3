@@ -4,3 +4,5 @@ lint :
 	npx eslint .
 test:
 	npm test	
+server:
+	npm run start
