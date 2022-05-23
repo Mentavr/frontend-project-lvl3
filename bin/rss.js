@@ -2,13 +2,19 @@ import watcherState from './watcher.js';
 import * as yup from 'yup';
 import { setLocale } from 'yup';
 import _ from 'lodash';
+import i18next from 'i18next';
+import instance from './instance.js'
+
+const i18nextInstance = i18next.createInstance();
+i18nextInstance.init(instance);
+
 
 setLocale({
   string: {
-    url: 'Ссылка должна быть валидным URL'
+    url: i18nextInstance.t('validateRss.errors.textError'),
   },
   mixed: {
-    notOneOf: 'RSS уже существует',
+    notOneOf: i18nextInstance.t('validateRss.errors.textUrlRepeat'),
   }
 });
 
@@ -33,10 +39,10 @@ export default  () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const inputRssValue = formData.get('url');
-    const schema = createSchema(watchedState.form.rss)
+    const schema = createSchema(watchedState.form.rss);
     schema.validate ({url: inputRssValue})
     .then(() => {
-      watchedState.form.massage = 'RSS успешно загружен';
+      watchedState.form.massage = i18nextInstance.t('validateRss.notErrors.textValid');
       watchedState.form.rss.push(inputRssValue);
       watchedState.form.state = true;
     })

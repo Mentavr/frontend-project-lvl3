@@ -3,16 +3,9 @@ import _ from "lodash";
 
 export default (state) =>
   onChange(state, (path, value) => {
-    // текст с выводом ошибки и правильной валидации
-    // const text = {
-    //   textError : 'Ссылка должна быть валидным URL',
-    //   textValid : 'RSS успешно загружен',
-    //   textUrlRepeat : 'RSS уже существует',
-    //   textNotRss : 'Ресурс не содержит валидный RSS',
-    // }
-    const input = document.querySelector(".form-control");
-    const feedback = document.querySelector(".feedback");
-    const isDanger = feedback.classList.contains("text-danger");
+    const input = document.querySelector('.form-control');
+    const feedback = document.querySelector('.feedback');
+    const isDanger = feedback.classList.contains('text-danger');
     switch (path) {
       case 'form.state':
         if (value) {
@@ -35,7 +28,6 @@ export default (state) =>
         }
         break;
       case 'form.massage':
-        console.log(state.form.massage, 'asd')
         feedback.textContent = state.form.massage;
         break;
     }
