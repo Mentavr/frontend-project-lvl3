@@ -1,4 +1,3 @@
-
 export default {
     lng: 'ru',
     debug: true,
