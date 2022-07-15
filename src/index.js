@@ -7,6 +7,5 @@ import instance from '../bin/instance.js';
 
 const i18nextInstance = i18next.createInstance();
 i18nextInstance.init(instance);
-console.log(i18nextInstance);
 
 app(i18nextInstance);

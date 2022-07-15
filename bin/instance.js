@@ -9,6 +9,7 @@ export default {
                     textError : 'Ссылка должна быть валидным URL',
                     textUrlRepeat : 'RSS уже существует',
                     textNotRss : 'Ресурс не содержит валидный RSS',
+                    textErrorNetwork : 'Ошибка сети', 
                 },
                 notErrors: {
                     textValid : 'RSS успешно загружен',

@@ -1,9 +1,9 @@
 import _ from "lodash";
 
-export default (link, instance) => {
+export default (rssLink, instance) => {
   const parserRss = new DOMParser();
   const feedXML = parserRss.parseFromString(
-    link.data.contents,
+    rssLink.data.contents,
     "application/xml"
   );
   if (!feedXML.querySelector("rss")) {
@@ -14,13 +14,15 @@ export default (link, instance) => {
 
   const posts = [...feedXML.querySelectorAll("item")].map((item, index) => {
     const postIdLast = [...document.querySelectorAll("[data-id]")].length;
+    console.log(postIdLast)
     return {
       postId: postIdLast + index,
       title: item.querySelector("title").innerHTML,
       link: item.querySelector("link").innerHTML,
       description: item.querySelector("description").innerHTML,
     };
-  });
+  })
+  .reverse();
 
   const feeds = _.fromPairs(
     [...feedXML.querySelector("channel").children]
@@ -31,5 +33,5 @@ export default (link, instance) => {
       })
   );
 
-  return [{ posts }, { feeds }];
+  return { posts , feeds };
 };

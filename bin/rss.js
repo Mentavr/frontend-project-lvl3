@@ -6,6 +6,8 @@ import parser from "./parser.js";
 import axios from "axios";
 
 export default (instance) => {
+  const allOrigins = "https://allorigins.hexlet.app/get?disableCache=true&url=";
+
   setLocale({
     string: {
       url: instance.t("validateRss.errors.textError"),
@@ -27,7 +29,7 @@ export default (instance) => {
       messeg: null,
       urlValid: [],
     },
-    rssData: null,
+    rssData: [],
   };
   const watchedState = watcherState(state);
   const form = document.querySelector("form");
@@ -38,26 +40,43 @@ export default (instance) => {
     const formData = new FormData(e.target);
     const inputRssValue = formData.get("url");
     const schema = createSchema(watchedState.form.urlValid);
-    const allOrigins =
-      "https://allorigins.hexlet.app/get?disableCache=true&url=";
     schema
       .validate({ url: inputRssValue })
       .then(({ url }) => axios(`${allOrigins}${encodeURIComponent(url)}`))
       .then((request) => parser(request, instance))
-      .then((rssDoc) => {
-        watchedState.rssData = rssDoc;
-        watchedState.form.urlValid.push(inputRssValue);
-        watchedState.form.messeg = instance.t(
-          "validateRss.notErrors.textValid"
-        );
-        watchedState.form.state = true;
-      })
+      .then((rssDoc) => watchedState.rssData.push(rssDoc))
+      .then(() => watchedState.form.urlValid.push(inputRssValue))
+      .then(
+        () =>
+          (watchedState.form.messeg = instance.t(
+            "validateRss.notErrors.textValid"
+          ))
+      )
+      .then(() => (watchedState.form.state = true))
       .catch((e) => {
-        e.errors  
-         ? (watchedState.form.messeg = e.errors)
-         : (watchedState.form.messeg = e.message)
+        e.errors
+          ? (watchedState.form.messeg = e.errors)
+          : (watchedState.form.messeg = e.message);
         watchedState.form.state = false;
       });
-      input.reset();
+    const request = () => {
+      watchedState.form.urlValid.map((elem) => {
+        axios(`${allOrigins}${encodeURIComponent(elem)}`)
+          .then((request) => parser(request))
+          .then(({posts : delayRssPosts}) => {
+            const postsData =  watchedState.rssData.map(({posts}) => posts);
+            const posts = _.flattenDeep(postsData);
+            const difference = _.differenceBy(delayRssPosts, posts, "link");
+            // console.log(difference, difference.length); длинна и элементы новых постов
+              if (difference.length >= 1) {
+                watchedState.rssData.push({posts: difference, feeds: null});
+              }
+            });
+          })
+        timerId = setTimeout(request, delay);
+    };
+    const delay = 5000;
+    let timerId = setTimeout(request, delay);
+    input.reset();
   });
 };
