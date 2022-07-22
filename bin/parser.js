@@ -14,9 +14,9 @@ export default (rssLink, instance) => {
 
   const posts = [...feedXML.querySelectorAll("item")].map((item, index) => {
     const postIdLast = [...document.querySelectorAll("[data-id]")].length;
-    console.log(postIdLast)
+    const id = postIdLast + index
     return {
-      postId: postIdLast + index,
+      postId: `${id}`,
       title: item.querySelector("title").innerHTML,
       link: item.querySelector("link").innerHTML,
       description: item.querySelector("description").innerHTML,

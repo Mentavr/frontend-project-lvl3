@@ -30,6 +30,8 @@ export default (instance) => {
       urlValid: [],
     },
     rssData: [],
+    modalWindow: '',
+    targetPosts: [],
   };
   const watchedState = watcherState(state);
   const form = document.querySelector("form");
@@ -63,20 +65,54 @@ export default (instance) => {
       watchedState.form.urlValid.map((elem) => {
         axios(`${allOrigins}${encodeURIComponent(elem)}`)
           .then((request) => parser(request))
-          .then(({posts : delayRssPosts}) => {
-            const postsData =  watchedState.rssData.map(({posts}) => posts);
+          .then(({ posts: delayRssPosts }) => {
+            const postsData = watchedState.rssData.map(({ posts }) => posts);
             const posts = _.flattenDeep(postsData);
             const difference = _.differenceBy(delayRssPosts, posts, "link");
             // console.log(difference, difference.length); длинна и элементы новых постов
-              if (difference.length >= 1) {
-                watchedState.rssData.push({posts: difference, feeds: null});
-              }
-            });
-          })
-        timerId = setTimeout(request, delay);
+            if (difference.length >= 1) {
+              watchedState.rssData.push({ posts: difference, feeds: null });
+            }
+          });
+      });
+      timerId = setTimeout(request, delay);
     };
     const delay = 5000;
     let timerId = setTimeout(request, delay);
     input.reset();
   });
+
+  // открытие модального окна
+  const postItems = document.querySelector(".posts");
+  postItems.addEventListener("click", ({target}) => {
+    const targetPost = target;
+    const postId = target.dataset.id;
+    const postsData = watchedState.rssData.map(({ posts }) => posts);
+    const posts = _.flattenDeep(postsData);
+    const filterPosts = posts.find(elem => elem.postId === postId);
+    watchedState.targetPosts.push({postId: filterPosts.postId});
+    const nameTag = targetPost.localName;
+    switch (nameTag) {
+      case 'button':
+        watchedState.modalWindow = { filterPosts, modal: 'open' };
+        break;
+      case 'a': 
+        console.log('it clicked a link')
+      break;
+    }
+  });
+  
+  //закрытие модальношо окна
+  const myModal = document.getElementById('modal');
+  myModal.addEventListener('click', ({target}) => {
+    const targetPost = target;
+    const nameTag = targetPost.localName;
+    switch (nameTag) {
+      case 'button':
+        watchedState.modalWindow = {
+          modal: 'close',
+        };
+      break;
+    }
+  })
 };

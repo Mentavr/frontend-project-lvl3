@@ -1,8 +1,9 @@
 import onChange from "on-change";
 import _ from "lodash";
 
+
 export default (state) =>
-  onChange(state, (path, value) => {
+  onChange(state,  function (path, value)  {
     const input = document.querySelector(".form-control");
     const feedback = document.querySelector(".feedback");
     const isDanger = feedback.classList.contains("text-danger");
@@ -34,36 +35,22 @@ export default (state) =>
 
       case "rssData":
         console.log(value);
-
+  
         const divFeeds = document.querySelector(".feeds");
         const divPosts = document.querySelector(".posts");
 
-        const replaceDivPosts = document.createElement("div");
-        const replaceDivFeeds = document.createElement("div");
+        divFeeds.innerHTML = '';
+        divPosts.innerHTML = '';
 
-        replaceDivFeeds.classList.add(
-          "col-md-10",
-          "col-lg-4",
-          "mx-auto",
-          "order-0",
-          "order-lg-1",
-          "feeds"
-        );
-        replaceDivPosts.classList.add(
-          "col-md-10",
-          "col-lg-8",
-          "order-1",
-          "mx-auto",
-          "posts"
-        );
-
+        // const targetRssPosts = value.map(({ targetId }) => targetId);
         const postsRss = value.map(({ posts }) => posts);
         const feedsRss = value.map(({ feeds }) => feeds)
         .filter((feed) => feed)
+        // const targetsPosts = _.flattenDeep(targetRssPosts);
         const posts = _.flattenDeep(postsRss);
         const feeds = _.flattenDeep(feedsRss);
 
-        console.log(posts, feeds, 'posts and feeds');
+        console.log(posts, feeds, 'posts, feeds');
 
         const createDom = (name) => {
           const creater = {};
@@ -99,18 +86,16 @@ export default (state) =>
         divFeedCardTitle.textContent = "Фиды";
         divPostCardTitle.textContent = "Посты";
 
-        replaceDivFeeds.append(divFeedCard);
+
+        divFeeds.append(divFeedCard);
         divFeedCard.append(divFeedCardBody);
         divFeedCard.append(listFeed);
         divFeedCardBody.append(divFeedCardTitle);
 
-        replaceDivPosts.append(divPostCard);
+        divPosts.append(divPostCard);
         divPostCard.append(divPostCardBody);
         divPostCard.append(listPost);
         divPostCardBody.append(divPostCardTitle);
-
-        divPosts.replaceWith(replaceDivPosts);
-        divFeeds.replaceWith(replaceDivFeeds);
 
         const feedItemsAdd = () => {
           feeds.forEach((feed) => {
@@ -144,6 +129,7 @@ export default (state) =>
             const itemPostButton = document.createElement("button");
 
             itemPostButton.setAttribute("type", "button");
+            itemPostButton.setAttribute("data-id", post.postId)
             linkItemPost.setAttribute("href", post.link);
             linkItemPost.setAttribute("target", "_blank");
             linkItemPost.setAttribute("data-id", post.postId);
@@ -170,8 +156,76 @@ export default (state) =>
             listPost.append(itemPost);
           });
         };
-          postItemsAdd();
-          feedItemsAdd();
+        postItemsAdd();
+        feedItemsAdd();
+        const tachedPosts = this.targetPosts;
+        if (tachedPosts) {
+          tachedPosts.forEach(({postId}) => {
+            const targetId = document.querySelector(`[data-id="${postId}"]`);
+            targetId.classList.add('fw-normal', 'link-secondary');
+            targetId.classList.remove('fw-bold');
+          })
+        }
+        break;
+        case 'modalWindow' :
+          const  { filterPosts, modal } = value
+          const body = document.querySelector('body');
+          const myModal = document.getElementById('modal');
+          const modalTitle = document.querySelector('.modal-title');
+          const modalText = document.querySelector('.text-break');
+          const modalLink = document.querySelector('.modal-footer a');
+
+        const modelOpen = () => {
+          const backgroundDiv = document.createElement('div');
+
+          body.classList.add('modal-open')
+          myModal.classList.add('show')
+          backgroundDiv.classList.add('modal-backdrop', 'fade', 'show')
+
+          modalLink.setAttribute('href', filterPosts.link)
+          body.setAttribute('style', "overflow: hidden; padding-right: 0px;");
+          myModal.setAttribute('aria-modal', 'true')
+          myModal.setAttribute('style', 'display: block')
+
+          myModal.removeAttribute('aria-hidden');
+
+          modalTitle.textContent = filterPosts.title;
+          modalText.textContent = filterPosts.description;
+
+          body.append(backgroundDiv) 
+        }
+
+        const modelClose = () => {
+          const backgroundDiv = document.querySelector('.modal-backdrop')
+          backgroundDiv.remove();
+
+          body.classList.remove('modal-open')
+          myModal.classList.remove('show');
+
+          modalLink.removeAttribute('href');
+          body.removeAttribute('style');
+          myModal.removeAttribute('style');
+          myModal.removeAttribute('aria-modal');
+          
+          myModal.setAttribute('aria-hidden', 'true')
+          myModal.setAttribute('style', 'display: none')
+        }
+          switch (modal) {
+            case 'close' :
+              modelClose();
+              break;
+            case 'open':
+              modelOpen();
+            break;
+          } 
+        break;
+        case 'targetPosts':
+          console.log(value)
+          value.forEach(({postId}) => {
+            const targetId = document.querySelector(`[data-id="${postId}"]`);
+            targetId.classList.add('fw-normal', 'link-secondary');
+            targetId.classList.remove('fw-bold');
+          })
         break;
     }
   });
