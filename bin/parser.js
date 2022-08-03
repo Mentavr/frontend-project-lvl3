@@ -1,37 +1,35 @@
-import _ from "lodash";
+import _ from 'lodash';
 
 export default (rssLink, instance) => {
+  const dataRssLink = rssLink.data.status.url;
   const parserRss = new DOMParser();
   const feedXML = parserRss.parseFromString(
     rssLink.data.contents,
-    "application/xml"
+    'application/xml',
   );
-  if (!feedXML.querySelector("rss")) {
+  if (!feedXML.querySelector('rss')) {
     throw new Error(instance.t(
-      "validateRss.errors.textNotRss"
+      'validateRss.errors.textNotRss',
     ));
   }
-
-  const posts = [...feedXML.querySelectorAll("item")].map((item, index) => {
-    const postIdLast = [...document.querySelectorAll("[data-id]")].length;
-    const id = postIdLast + index
+  const posts = [...feedXML.querySelectorAll('item')].map((item, index) => {
+    const postIdLast = [...document.querySelectorAll('[data-id]')].length;
+    const id = postIdLast + index;
     return {
       postId: `${id}`,
-      title: item.querySelector("title").innerHTML,
-      link: item.querySelector("link").innerHTML,
-      description: item.querySelector("description").innerHTML,
+      title: item.querySelector('title').innerHTML,
+      link: item.querySelector('link').innerHTML,
+      description: item.querySelector('description').innerHTML,
     };
   })
-  .reverse();
+    .reverse();
 
   const feeds = _.fromPairs(
-    [...feedXML.querySelector("channel").children]
-      .filter((childe) => childe.tagName !== "item")
-      .filter((childe) => childe.tagName !== "webMaster")
-      .map((item) => {
-        return [item.tagName, item.textContent];
-      })
+    [...feedXML.querySelector('channel').children]
+      .filter((childe) => childe.tagName !== 'item')
+      .filter((childe) => childe.tagName !== 'webMaster')
+      .map((item) => [item.tagName, item.textContent]),
   );
-
-  return { posts , feeds };
+  // console.log(dataRssLink);
+  return { posts, feeds, dataRssLink };
 };

@@ -1,110 +1,112 @@
-import watcherState from "./watcher.js";
-import * as yup from "yup";
-import { setLocale } from "yup";
-import _ from "lodash";
-import parser from "./parser.js";
-import axios from "axios";
+import * as yup from 'yup';
+import { setLocale } from 'yup';
+import axios from 'axios';
+import _ from 'lodash';
+import parser from './parser.js';
+import watcherState from './watcher.js';
 
 export default (instance) => {
-  const allOrigins = "https://allorigins.hexlet.app/get?disableCache=true&url=";
-
+  const allOrigins = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
   setLocale({
     string: {
-      url: instance.t("validateRss.errors.textError"),
+      url: instance.t('validateRss.errors.textError'),
     },
     mixed: {
-      notOneOf: instance.t("validateRss.errors.textUrlRepeat"),
+      notOneOf: instance.t('validateRss.errors.textUrlRepeat'),
     },
   });
 
-  const createSchema = (data) => {
-    return yup.object().shape({
-      url: yup.string().url().notOneOf(data),
-    });
-  };
+  const createSchema = (data) => yup.object().shape({
+    url: yup.string().url().notOneOf(data),
+  });
 
   const state = {
     form: {
-      state: "",
-      messeg: null,
-      urlValid: [],
+      state: '',
+      validMessaeg: null,
     },
     rssData: [],
     modalWindow: '',
     targetPosts: [],
   };
   const watchedState = watcherState(state);
-  const form = document.querySelector("form");
+  const form = document.querySelector('form');
   form.focus();
-  form.addEventListener("submit", (e) => {
+  form.addEventListener('submit', (e) => {
     e.preventDefault();
     const input = e.target;
     const formData = new FormData(e.target);
-    const inputRssValue = formData.get("url");
-    const schema = createSchema(watchedState.form.urlValid);
+    const inputRssValue = formData.get('url');
+    const urlsValid = watchedState.rssData.map(({ dataRssLink }) => dataRssLink);
+    const schema = createSchema(urlsValid);
     schema
       .validate({ url: inputRssValue })
       .then(({ url }) => axios(`${allOrigins}${encodeURIComponent(url)}`))
       .then((request) => parser(request, instance))
-      .then((rssDoc) => watchedState.rssData.push(rssDoc))
-      .then(() => watchedState.form.urlValid.push(inputRssValue))
-      .then(
-        () =>
-          (watchedState.form.messeg = instance.t(
-            "validateRss.notErrors.textValid"
-          ))
-      )
-      .then(() => (watchedState.form.state = true))
-      .catch((e) => {
-        e.errors
-          ? (watchedState.form.messeg = e.errors)
-          : (watchedState.form.messeg = e.message);
+      .then((rssDoc) => {
+        watchedState.rssData.push(rssDoc);
+        const validRss = instance.t('validateRss.notErrors.textValid');
+        watchedState.form.validMessaeg = validRss;
+        watchedState.form.state = true;
+      })
+      .catch((message) => {
+        console.log(message.name);
+        console.log(message);
+        console.log(message.errors);
+        console.log(message.message);
         watchedState.form.state = false;
+        switch (message.name) {
+          case 'ValidationError':
+            watchedState.form.validMessaeg = message.message;
+            break;
+          default:
+            watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
+        }
       });
-    const request = () => {
-      watchedState.form.urlValid.map((elem) => {
-        axios(`${allOrigins}${encodeURIComponent(elem)}`)
-          .then((request) => parser(request))
-          .then(({ posts: delayRssPosts }) => {
+    const delay = 5000;
+    setTimeout(function request() {
+      watchedState.rssData.forEach(({ dataRssLink }) => {
+        axios(`${allOrigins}${encodeURIComponent(dataRssLink)}`)
+          .then((rssData) => parser(rssData))
+          .then((data) => {
             const postsData = watchedState.rssData.map(({ posts }) => posts);
             const posts = _.flattenDeep(postsData);
-            const difference = _.differenceBy(delayRssPosts, posts, "link");
-            // console.log(difference, difference.length); длинна и элементы новых постов
+            const difference = _.differenceBy(data.posts, posts, 'link');
             if (difference.length >= 1) {
-              watchedState.rssData.push({ posts: difference, feeds: null });
+              watchedState.rssData.push({ posts: difference, feeds: null, dataRssLink });
             }
           });
       });
-      timerId = setTimeout(request, delay);
-    };
-    const delay = 5000;
-    let timerId = setTimeout(request, delay);
+      setTimeout(request, delay);
+    }, delay);
     input.reset();
   });
 
   // открытие модального окна
-  const postItems = document.querySelector(".posts");
-  postItems.addEventListener("click", ({target}) => {
+  const postItems = document.querySelector('.posts');
+  postItems.addEventListener('click', ({ target }) => {
     const targetPost = target;
     const postId = target.dataset.id;
     const postsData = watchedState.rssData.map(({ posts }) => posts);
     const posts = _.flattenDeep(postsData);
-    const filterPosts = posts.find(elem => elem.postId === postId);
-    watchedState.targetPosts.push({postId: filterPosts.postId});
+    const filterPosts = posts.find((elem) => elem.postId === postId);
     const nameTag = targetPost.localName;
     switch (nameTag) {
       case 'button':
         watchedState.modalWindow = { filterPosts, modal: 'open' };
+        watchedState.targetPosts.push({ postId: filterPosts.postId });
         break;
-      case 'a': 
-        console.log('it clicked a link')
-      break;
+      case 'a':
+        watchedState.targetPosts.push({ postId: filterPosts.postId });
+        break;
+      default:
+        throw new Error('modal windoow did not open');
     }
   });
-  
-  //закрытие модальношо окна
+
+  // закрытие модальношо окна
   const myModal = document.getElementById('modal');
-  myModal.addEventListener('click', ({target}) => {
+  myModal.addEventListener('click', ({ target }) => {
     const targetPost = target;
     const nameTag = targetPost.localName;
     switch (nameTag) {
@@ -112,7 +114,9 @@ export default (instance) => {
         watchedState.modalWindow = {
           modal: 'close',
         };
-      break;
+        break;
+      default:
+        throw Error('modal windoow did not close');
     }
-  })
+  });
 };
