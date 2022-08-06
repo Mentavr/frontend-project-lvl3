@@ -50,18 +50,12 @@ export default (instance) => {
         watchedState.form.state = true;
       })
       .catch((error) => {
-        // error.isAxiosError
-        console.log(error.isAxiosError);
         watchedState.form.state = false;
-        switch (error.isAxiosError) {
-          case false:
-            watchedState.form.validMessaeg = error.message;
-            break;
-          case true:
-            watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
-            break;
-          default:
-            throw new Error('Ошибка');
+        console.log(error.isAxiosError);
+        if (error.isAxiosError) {
+          watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
+        } else {
+          watchedState.form.validMessaeg = error.message;
         }
       });
     const delay = 5000;
