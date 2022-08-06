@@ -49,18 +49,19 @@ export default (instance) => {
         watchedState.form.validMessaeg = validRss;
         watchedState.form.state = true;
       })
-      .catch((message) => {
-        console.log(message.name);
-        console.log(message);
-        console.log(message.errors);
-        console.log(message.message);
+      .catch((error) => {
+        // error.isAxiosError
+        console.log(error.isAxiosError);
         watchedState.form.state = false;
-        switch (message.name) {
-          case 'ValidationError':
-            watchedState.form.validMessaeg = message.message;
+        switch (error.isAxiosError) {
+          case false:
+            watchedState.form.validMessaeg = error.message;
+            break;
+          case true:
+            watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
             break;
           default:
-            watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
+            throw new Error('Ошибка');
         }
       });
     const delay = 5000;
