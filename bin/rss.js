@@ -37,12 +37,12 @@ export default (instance) => {
     const input = e.target;
     const formData = new FormData(e.target);
     const inputRssValue = formData.get('url');
-    const urlsValid = watchedState.rssData.map(({ dataRssLink }) => dataRssLink);
+    const urlsValid = watchedState.rssData.map(({ rssUrl }) => rssUrl);
     const schema = createSchema(urlsValid);
     schema
       .validate({ url: inputRssValue })
       .then(({ url }) => axios(`${allOrigins}${encodeURIComponent(url)}`))
-      .then((request) => parser(request, instance))
+      .then((request) => parser(request, instance, inputRssValue))
       .then((rssDoc) => {
         watchedState.rssData.push(rssDoc);
         const validRss = instance.t('validateRss.notErrors.textValid');
@@ -50,7 +50,6 @@ export default (instance) => {
         watchedState.form.state = true;
       })
       .catch((error) => {
-        console.log(error);
         watchedState.form.state = false;
         if (error.isAxiosError) {
           watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
@@ -60,21 +59,21 @@ export default (instance) => {
       });
     const delay = 5000;
     setTimeout(function request() {
-      watchedState.rssData.forEach(({ dataRssLink }) => {
-        axios(`${allOrigins}${encodeURIComponent(dataRssLink)}`)
+      watchedState.rssData.forEach(({ rssUrl }) => {
+        axios(`${allOrigins}${encodeURIComponent(rssUrl)}`)
           .then((rssData) => parser(rssData))
           .then((data) => {
             const postsData = watchedState.rssData.map(({ posts }) => posts);
             const posts = _.flattenDeep(postsData);
             const difference = _.differenceBy(data.posts, posts, 'link');
             if (difference.length >= 1) {
-              watchedState.rssData.push({ posts: difference, feeds: null, dataRssLink });
+              watchedState.rssData.push({ posts: difference, feeds: null, rssUrl });
             }
           });
       });
       setTimeout(request, delay);
     }, delay);
-    // input.reset();
+    input.reset();
   });
 
   // открытие модального окна

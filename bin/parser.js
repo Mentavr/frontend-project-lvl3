@@ -1,7 +1,6 @@
 import _ from 'lodash';
 
-export default (rssLink, instance) => {
-  const dataRssLink = rssLink.data.status.url;
+export default (rssLink, instance, rssUrl) => {
   const parserRss = new DOMParser();
   const feedXML = parserRss.parseFromString(
     rssLink.data.contents,
@@ -30,6 +29,5 @@ export default (rssLink, instance) => {
       .filter((childe) => childe.tagName !== 'webMaster')
       .map((item) => [item.tagName, item.textContent]),
   );
-  // console.log(dataRssLink);
-  return { posts, feeds, dataRssLink };
+  return { posts, feeds, rssUrl };
 };
