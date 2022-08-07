@@ -74,7 +74,7 @@ export default (instance) => {
       });
       setTimeout(request, delay);
     }, delay);
-    input.reset();
+    // input.reset();
   });
 
   // открытие модального окна

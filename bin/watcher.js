@@ -17,7 +17,6 @@ export default (state) => onChange(state, function change(path, value) {
         }
       }
       if (!value) {
-        console.log(value, 'watcher false');
         if (!isDanger) {
           feedback.classList.add('text-danger');
         }
@@ -27,7 +26,6 @@ export default (state) => onChange(state, function change(path, value) {
       }
       break;
     case 'form.validMessaeg':
-      // console.log(value, 'watcher valid Messag');
       feedback.textContent = value;
       break;
 
