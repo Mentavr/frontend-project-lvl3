@@ -41,25 +41,22 @@ export default (instance) => {
     const schema = createSchema(urlsValid);
     schema
       .validate({ url: inputRssValue })
-      .then((validationResult) => {
-        console.log(validationResult);
-        return axios(`${allOrigins}${encodeURIComponent(validationResult.url)}`);
-      })
+      .then(({ url }) => axios(`${allOrigins}${encodeURIComponent(url)}`))
       .then((request) => parser(request, instance))
       .then((rssDoc) => {
         watchedState.rssData.push(rssDoc);
         const validRss = instance.t('validateRss.notErrors.textValid');
         watchedState.form.validMessaeg = validRss;
         watchedState.form.state = true;
-      })
-      .catch((error) => {
-        watchedState.form.state = false;
-        if (error.isAxiosError) {
-          watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
-        } else {
-          watchedState.form.validMessaeg = error.message;
-        }
       });
+      // .catch((error) => {
+      //   watchedState.form.state = false;
+      //   if (error.isAxiosError) {
+      //     watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
+      //   } else {
+      //     watchedState.form.validMessaeg = error.message;
+      //   }
+      // });
     const delay = 5000;
     setTimeout(function request() {
       watchedState.rssData.forEach(({ dataRssLink }) => {
