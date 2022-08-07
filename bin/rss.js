@@ -48,15 +48,16 @@ export default (instance) => {
         const validRss = instance.t('validateRss.notErrors.textValid');
         watchedState.form.validMessaeg = validRss;
         watchedState.form.state = true;
+      })
+      .catch((error) => {
+        console.log(error);
+        watchedState.form.state = false;
+        if (error.isAxiosError) {
+          watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
+        } else {
+          watchedState.form.validMessaeg = error.message;
+        }
       });
-      // .catch((error) => {
-      //   watchedState.form.state = false;
-      //   if (error.isAxiosError) {
-      //     watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
-      //   } else {
-      //     watchedState.form.validMessaeg = error.message;
-      //   }
-      // });
     const delay = 5000;
     setTimeout(function request() {
       watchedState.rssData.forEach(({ dataRssLink }) => {
