@@ -41,7 +41,10 @@ export default (instance) => {
     const schema = createSchema(urlsValid);
     schema
       .validate({ url: inputRssValue })
-      .then(({ url }) => axios(`${allOrigins}${encodeURIComponent(url)}`))
+      .then((validationResult) => {
+        console.log(validationResult);
+        return axios(`${allOrigins}${encodeURIComponent(validationResult.url)}`);
+      })
       .then((request) => parser(request, instance))
       .then((rssDoc) => {
         watchedState.rssData.push(rssDoc);
@@ -51,7 +54,6 @@ export default (instance) => {
       })
       .catch((error) => {
         watchedState.form.state = false;
-        console.log(error.isAxiosError);
         if (error.isAxiosError) {
           watchedState.form.validMessaeg = instance.t('validateRss.errors.textErrorNetwork');
         } else {
