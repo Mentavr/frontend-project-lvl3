@@ -4,6 +4,11 @@ export default {
   resources: {
     ru: {
       translation: {
+        interface: {
+          posts: 'Посты',
+          feeds: 'Фиды',
+          view: 'Посмотреть',
+        },
         validateRss: {
           errors: {
             textError: 'Ссылка должна быть валидным URL',
