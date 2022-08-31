@@ -7,7 +7,7 @@ export default {
         interface: {
           posts: 'Посты',
           feeds: 'Фиды',
-          view: 'Посмотреть',
+          view: 'Просмотр',
         },
         validateRss: {
           errors: {

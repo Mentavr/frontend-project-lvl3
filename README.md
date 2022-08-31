@@ -9,8 +9,4 @@
 1. Clone this repositori.
 2. Instal dependencies (Makefile: "make install").
 3. Open server (Makefile: "make server").
-
-### Vercel deployment Status
-[Vercel deployment Status]: https://frontend-project-lvl3-mentavr.vercel.app/
-
-
+4. Enter URL link in RSS aggregator.
