@@ -1,5 +1,4 @@
 import onChange from 'on-change';
-import _ from 'lodash';
 
 const createDom = (name) => {
   const creater = {};
@@ -21,7 +20,16 @@ const addClass = (data, name) => {
   );
 };
 
+const targetPost = (postsId) => {
+  postsId.forEach((id) => {
+    const targetId = document.querySelector(`[data-id="${id}"]`);
+    targetId.classList.add('fw-normal', 'link-secondary');
+    targetId.classList.remove('fw-bold');
+  });
+};
+
 export default (state, translation) => onChange(state, (path, value) => {
+  const targetIdPost = state.targetPosts;
   const input = document.querySelector('.form-control');
   const feedback = document.querySelector('.feedback');
   const isDanger = feedback.classList.contains('text-danger');
@@ -55,8 +63,7 @@ export default (state, translation) => onChange(state, (path, value) => {
     case 'posts': {
       const divPosts = document.querySelector('.posts');
       divPosts.innerHTML = '';
-      const posts = _.flattenDeep(value);
-
+      const posts = [...value];
       const postDom = createDom('Post');
       addClass(postDom, 'Post');
 
@@ -106,13 +113,13 @@ export default (state, translation) => onChange(state, (path, value) => {
         });
       };
       postItemsAdd();
+      targetPost(targetIdPost);
     }
       break;
     case 'feeds': {
-      console.log(value);
       const divFeeds = document.querySelector('.feeds');
       divFeeds.innerHTML = '';
-      const feeds = _.flattenDeep(value);
+      const feeds = [...value];
       const feedsDom = createDom('Feed');
       addClass(feedsDom, 'Feed');
       const {
@@ -151,14 +158,11 @@ export default (state, translation) => onChange(state, (path, value) => {
     }
       break;
     case 'targetPosts':
-      value.forEach((id) => {
-        const targetId = document.querySelector(`[data-id="${id}"]`);
-        targetId.classList.add('fw-normal', 'link-secondary');
-        targetId.classList.remove('fw-bold');
-      });
+      targetPost(targetIdPost);
       break;
     case 'modalWindow': {
-      const { filterPosts, modal } = value;
+      const { filterPostId, modal } = value;
+      const post = state.posts.find((item) => item.postId === filterPostId);
       const body = document.querySelector('body');
       const myModal = document.getElementById('modal');
       const modalTitle = document.querySelector('.modal-title');
@@ -167,20 +171,19 @@ export default (state, translation) => onChange(state, (path, value) => {
 
       const modelOpen = () => {
         const backgroundDiv = document.createElement('div');
-
         body.classList.add('modal-open');
         myModal.classList.add('show');
         backgroundDiv.classList.add('modal-backdrop', 'fade', 'show');
 
-        modalLink.setAttribute('href', filterPosts.link);
+        modalLink.setAttribute('href', post.link);
         body.setAttribute('style', 'overflow: hidden; padding-right: 0px;');
         myModal.setAttribute('aria-modal', 'true');
         myModal.setAttribute('style', 'display: block');
 
         myModal.removeAttribute('aria-hidden');
 
-        modalTitle.textContent = filterPosts.title;
-        modalText.textContent = filterPosts.description;
+        modalTitle.textContent = post.title;
+        modalText.textContent = post.description;
 
         body.append(backgroundDiv);
       };

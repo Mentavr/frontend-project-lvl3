@@ -1,7 +1,6 @@
 import _ from 'lodash';
 
 export default (rssLink) => {
-  console.log(rssLink);
   const parserRss = new DOMParser();
   const feedXML = parserRss.parseFromString(
     rssLink.data.contents,

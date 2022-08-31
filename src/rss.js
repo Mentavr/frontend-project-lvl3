@@ -32,6 +32,7 @@ export default () => {
   translation.init(interfaceTranslations);
 
   const allOrigins = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
+  const targetPosts = new Set();
 
   const state = {
     state: 'waiting',
@@ -43,6 +44,7 @@ export default () => {
     modalWindow: '',
     targetPosts: [],
   };
+  state.targetPosts = targetPosts;
   const watchedState = watcherState(state, translation);
   const form = document.querySelector('form');
   watchedState.state = 'waiting';
@@ -58,8 +60,8 @@ export default () => {
         const { postsParser, feedsParser } = parser(request);
         const posts = postsParser.map((post) => ({ ...post, postId: _.uniqueId() }));
         const feeds = ({ ...feedsParser, urlValid: inputUrlValue });
-        watchedState.posts.push(posts);
-        watchedState.feeds.push(feeds);
+        watchedState.posts = watchedState.posts.concat(posts);
+        watchedState.feeds = watchedState.feeds.concat(feeds);
         watchedState.form.validMessaeg = validRss;
         watchedState.state = 'success';
       })
@@ -68,12 +70,11 @@ export default () => {
         const request = () => axios(`${allOrigins}${encodeURIComponent(inputUrlValue)}`)
           .then((data) => {
             const { postsParser: newPostsParser } = parser(data);
-            const postsData = watchedState.posts;
-            const posts = _.flattenDeep(postsData);
+            const { posts } = watchedState;
             const difference = _.differenceBy(newPostsParser, posts, 'link')
               .map((post) => ({ ...post, postId: _.uniqueId() }));
             if (difference.length >= 1) {
-              watchedState.posts.push(difference);
+              watchedState.posts = watchedState.posts.concat(difference);
             }
             setTimeout(request, delay);
           });
@@ -96,18 +97,17 @@ export default () => {
   postItems.addEventListener('click', ({ target }) => {
     const targetPost = target;
     const postId = target.dataset.id;
-    const postsData = watchedState.posts;
-    const posts = _.flattenDeep(postsData);
+    const { posts } = watchedState;
     const filterPosts = posts.find((elem) => elem.postId === postId);
     const filterPostId = filterPosts.postId;
     const nameTag = targetPost.localName;
     switch (nameTag) {
       case 'button':
         watchedState.modalWindow = { filterPostId, modal: 'open' };
-        watchedState.targetPosts = [...watchedState.targetPosts, filterPostId];
+        watchedState.targetPosts.add(filterPostId);
         break;
       case 'a':
-        watchedState.targetPosts = [...watchedState.targetPosts, filterPostId];
+        watchedState.targetPosts.add(filterPostId);
         break;
       default:
         throw new Error('modal windoow did not open');
