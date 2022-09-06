@@ -7,6 +7,8 @@ import parser from './parser.js';
 import watcherState from './watcher.js';
 import interfaceTranslations from './translations.js';
 
+const allOrigins = 'https://allorigins.hexlet.app/get?disableCache=true';
+
 const createSchema = (data) => yup.object().shape({
   url: yup.string().url().notOneOf(data),
 });
@@ -16,6 +18,12 @@ const validateUrl = (url, feeds) => {
   const schema = createSchema(urlsValid);
   return schema
     .validate({ url });
+};
+
+const createUrl = (inputUrlValue) => {
+  const url = new URL(allOrigins);
+  url.searchParams.set('url', inputUrlValue);
+  return url.href;
 };
 
 export default () => {
@@ -31,9 +39,6 @@ export default () => {
   const translation = i18next.createInstance();
   translation.init(interfaceTranslations);
 
-  const allOrigins = 'https://allorigins.hexlet.app/get?disableCache=true&url=';
-  const targetPosts = new Set();
-
   const state = {
     state: 'waiting',
     form: {
@@ -42,9 +47,9 @@ export default () => {
     posts: [],
     feeds: [],
     modalWindow: '',
-    targetPosts: [],
+    targetPosts: new Set(),
   };
-  state.targetPosts = targetPosts;
+
   const watchedState = watcherState(state, translation);
   const form = document.querySelector('form');
   watchedState.state = 'waiting';
@@ -53,7 +58,7 @@ export default () => {
     const formData = new FormData(e.target);
     const inputUrlValue = formData.get('url');
     validateUrl(inputUrlValue, watchedState.feeds)
-      .then(({ url }) => axios(`${allOrigins}${encodeURIComponent(url)}`))
+      .then(({ url }) => axios(createUrl(url)))
       .then((request) => {
         watchedState.state = 'processing';
         const validRss = 'validateRss.notErrors.textValid';
@@ -67,7 +72,7 @@ export default () => {
       })
       .then(() => {
         const delay = 5000;
-        const request = () => axios(`${allOrigins}${encodeURIComponent(inputUrlValue)}`)
+        const request = () => axios(createUrl(inputUrlValue))
           .then((data) => {
             const { postsParser: newPostsParser } = parser(data);
             const { posts } = watchedState;
@@ -103,7 +108,7 @@ export default () => {
     const nameTag = targetPost.localName;
     switch (nameTag) {
       case 'button':
-        watchedState.modalWindow = { filterPostId, modal: 'open' };
+        watchedState.modalWindow = filterPostId;
         watchedState.targetPosts.add(filterPostId);
         break;
       case 'a':
@@ -111,22 +116,6 @@ export default () => {
         break;
       default:
         throw new Error('modal windoow did not open');
-    }
-  });
-
-  // закрытие модального окна
-  const myModal = document.getElementById('modal');
-  myModal.addEventListener('click', ({ target }) => {
-    const targetPost = target;
-    const nameTag = targetPost.localName;
-    switch (nameTag) {
-      case 'button':
-        watchedState.modalWindow = {
-          modal: 'close',
-        };
-        break;
-      default:
-        throw Error('modal windoow did not close');
     }
   });
 };

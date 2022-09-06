@@ -84,6 +84,8 @@ export default (state, translation) => onChange(state, (path, value) => {
           const linkItemPost = document.createElement('a');
           const itemPostButton = document.createElement('button');
 
+          itemPostButton.setAttribute('data-bs-target', '#modal');
+          itemPostButton.setAttribute('data-bs-toggle', 'modal');
           itemPostButton.setAttribute('type', 'button');
           itemPostButton.setAttribute('data-id', post.postId);
           linkItemPost.setAttribute('href', post.link);
@@ -161,58 +163,14 @@ export default (state, translation) => onChange(state, (path, value) => {
       targetPost(targetIdPost);
       break;
     case 'modalWindow': {
-      const { filterPostId, modal } = value;
-      const post = state.posts.find((item) => item.postId === filterPostId);
-      const body = document.querySelector('body');
-      const myModal = document.getElementById('modal');
+      const post = state.posts.find((item) => item.postId === value);
       const modalTitle = document.querySelector('.modal-title');
       const modalText = document.querySelector('.text-break');
       const modalLink = document.querySelector('.modal-footer a');
 
-      const modelOpen = () => {
-        const backgroundDiv = document.createElement('div');
-        body.classList.add('modal-open');
-        myModal.classList.add('show');
-        backgroundDiv.classList.add('modal-backdrop', 'fade', 'show');
-
-        modalLink.setAttribute('href', post.link);
-        body.setAttribute('style', 'overflow: hidden; padding-right: 0px;');
-        myModal.setAttribute('aria-modal', 'true');
-        myModal.setAttribute('style', 'display: block');
-
-        myModal.removeAttribute('aria-hidden');
-
-        modalTitle.textContent = post.title;
-        modalText.textContent = post.description;
-
-        body.append(backgroundDiv);
-      };
-
-      const modelClose = () => {
-        const backgroundDiv = document.querySelector('.modal-backdrop');
-        backgroundDiv.remove();
-
-        body.classList.remove('modal-open');
-        myModal.classList.remove('show');
-
-        modalLink.removeAttribute('href');
-        body.removeAttribute('style');
-        myModal.removeAttribute('style');
-        myModal.removeAttribute('aria-modal');
-
-        myModal.setAttribute('aria-hidden', 'true');
-        myModal.setAttribute('style', 'display: none');
-      };
-      switch (modal) {
-        case 'close':
-          modelClose();
-          break;
-        case 'open':
-          modelOpen();
-          break;
-        default:
-          throw new Error('modalWindow error');
-      }
+      modalTitle.textContent = post.title;
+      modalText.textContent = post.description;
+      modalLink.setAttribute('href', post.link);
     }
       break;
     default:
